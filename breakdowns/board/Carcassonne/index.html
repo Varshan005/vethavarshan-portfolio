@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carcassonne — Spatial Strategy, Ownership & Emergent Interaction</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#080808;
+  --text:#eeeDE8;
+  --muted:#96969a;
+  --soft:#67676a;
+  --line:#28282b;
+  --panel:#101011;
+  --panel2:#141416;
+  --accent:#e7e2d8;
+  --green:#b5ff5f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,Arial,sans-serif;
+  line-height:1.65;
+}
+img{max-width:100%}
+a{color:inherit;text-decoration:none}
+.container{width:min(1320px,calc(100% - 72px));margin:auto}
+.header{
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid var(--line);
+  background:rgba(8,8,8,.94);
+  backdrop-filter:blur(14px);
+}
+.nav{
+  height:82px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.brand{
+  font-family:Oswald,sans-serif;
+  font-weight:600;
+  letter-spacing:.06em;
+  font-size:18px;
+}
+.brand small{
+  display:block;
+  font-family:Inter,sans-serif;
+  font-size:9px;
+  letter-spacing:.2em;
+  color:var(--muted);
+  margin-top:-2px;
+}
+.navlinks{display:flex;gap:28px}
+.navlinks a{
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.12em;
+  color:#8e8e92;
+  transition:.2s ease;
+}
+.navlinks a:hover{color:#fff}
+
+.hero{
+  min-height:calc(100vh - 82px);
+  display:flex;
+  align-items:stretch;
+  border-bottom:1px solid var(--line);
+}
+.hero-grid{
+  display:grid;
+  grid-template-columns:1.18fr .82fr;
+  gap:40px;
+  padding:48px 0 56px;
+  min-height:calc(100vh - 82px);
+}
+.hero-copy{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding-right:20px;
+}
+.eyebrow{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.18em;
+  margin-bottom:28px;
+}
+.hero h1{
+  margin:0;
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:clamp(66px,8.4vw,142px);
+  font-weight:600;
+  line-height:.84;
+  letter-spacing:-.035em;
+}
+.hero h1 .sub{
+  display:block;
+  color:#8f8f94;
+  font-size:.48em;
+  line-height:.94;
+  margin-top:6px;
+  letter-spacing:-.01em;
+}
+.hero-desc{
+  max-width:730px;
+  margin:44px 0 0;
+  color:#c2c0bc;
+  font-size:17px;
+}
+.hero-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:28px;
+}
+.tag{
+  border:1px solid var(--line);
+  padding:8px 11px;
+  font-size:9px;
+  letter-spacing:.12em;
+  color:#a5a5a8;
+}
+.hero-visual{
+  position:relative;
+  min-height:680px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:flex-end;
+}
+.hero-image{
+  position:relative;
+  width:100%;
+  height:78%;
+  border:1px solid var(--line);
+  overflow:hidden;
+  background:#101011;
+}
+.hero-image img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  filter:saturate(.86) contrast(1.02);
+}
+.hero-image::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.62));
+  pointer-events:none;
+}
+.caption{
+  position:absolute;
+  left:16px;right:16px;bottom:14px;
+  z-index:2;
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  font-size:9px;
+  color:#d0d0d2;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+.section{border-bottom:1px solid var(--line)}
+.section-head{
+  display:grid;
+  grid-template-columns:.82fr 1.18fr;
+  gap:70px;
+  padding:120px 0 56px;
+}
+.section-kicker{
+  font-size:10px;
+  letter-spacing:.17em;
+  color:var(--muted);
+  font-weight:700;
+}
+.section-head h2{
+  margin:12px 0 0;
+  font-family:Oswald,sans-serif;
+  font-size:clamp(52px,6.2vw,92px);
+  text-transform:uppercase;
+  line-height:.9;
+  letter-spacing:-.02em;
+}
+.section-intro{
+  align-self:end;
+  color:#a9a9ad;
+  max-width:720px;
+  font-size:16px;
+}
+.number{
+  font-family:Oswald,sans-serif;
+  font-size:15px;
+  color:#b6b6b9;
+  letter-spacing:.08em;
+}
+
+.concept-band{
+  padding:0 0 108px;
+}
+.concept-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+.concept-card{
+  border-top:1px solid var(--line);
+  padding:26px 0 0;
+}
+.concept-card h3{
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:29px;
+  line-height:1;
+  margin:0 0 15px;
+}
+.concept-card p{margin:0;color:#99999d;font-size:14px}
+
+.big-quote{
+  margin:0 0 108px;
+  border-left:2px solid #77777b;
+  padding:15px 0 15px 28px;
+  max-width:980px;
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:clamp(32px,4vw,58px);
+  line-height:1.02;
+}
+.big-quote span{color:#8b8b90}
+
+.loop{
+  padding:0 0 110px;
+}
+.loop-rail{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--line);
+}
+.loop-step{
+  min-height:170px;
+  padding:28px;
+  border-right:1px solid var(--line);
+  position:relative;
+}
+.loop-step:last-child{border-right:0}
+.loop-step small{
+  display:block;
+  font-size:9px;
+  letter-spacing:.15em;
+  color:#858589;
+  margin-bottom:18px;
+}
+.loop-step h3{
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:30px;
+  margin:0;
+}
+.loop-step p{
+  margin:8px 0 0;
+  color:#929297;
+  font-size:12px;
+}
+.loop-step::after{
+  content:"→";
+  position:absolute;
+  right:12px;
+  top:23px;
+  color:#424247;
+  font-size:18px;
+}
+.loop-step:last-child::after{display:none}
+
+.feature{
+  padding:0 0 110px;
+}
+.feature-image{
+  border:1px solid var(--line);
+  background:#101011;
+  overflow:hidden;
+}
+.feature-image img{
+  display:block;
+  width:100%;
+  height:620px;
+  object-fit:cover;
+}
+.image-note{
+  border-top:1px solid var(--line);
+  padding:16px 18px;
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  font-size:9px;
+  letter-spacing:.12em;
+  color:#7f7f84;
+  text-transform:uppercase;
+}
+.split{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-bottom:108px;
+}
+.split.visual-left .media{order:0}
+.split.visual-left .copy{order:1}
+.split.visual-right .media{order:1}
+.split.visual-right .copy{order:0}
+.media{
+  border:1px solid var(--line);
+  min-height:500px;
+  overflow:hidden;
+  background:#101011;
+  position:relative;
+}
+.media img{
+  width:100%;height:100%;display:block;
+  object-fit:cover;
+}
+.copy{
+  border-top:1px solid var(--line);
+  padding:34px 0 0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.copy .mini{
+  color:#85858a;
+  font-size:9px;
+  letter-spacing:.16em;
+  font-weight:700;
+}
+.copy h3{
+  margin:12px 0 18px;
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:42px;
+  line-height:.97;
+}
+.copy p{
+  color:#a0a0a4;
+  max-width:590px;
+  margin:0 0 16px;
+}
+.inline-take{
+  margin-top:18px;
+  border:1px solid var(--line);
+  padding:20px;
+  background:#0c0c0d;
+}
+.inline-take b{
+  display:block;
+  color:#d5d5d7;
+  font-size:10px;
+  letter-spacing:.13em;
+  margin-bottom:8px;
+}
+.inline-take p{margin:0;font-size:12px}
+
+.callout{
+  margin:0 0 108px;
+  border:1px solid var(--line);
+  background:#0d0d0e;
+  padding:32px;
+}
+.callout .mini{
+  font-size:9px;
+  letter-spacing:.16em;
+  font-weight:700;
+  color:#88888d;
+}
+.callout h3{
+  margin:8px 0 12px;
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:38px;
+  line-height:1;
+}
+.callout p{color:#9e9ea2;margin:0;max-width:960px}
+
+.decision-map{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  border:1px solid var(--line);
+  margin-bottom:108px;
+}
+.decision{
+  min-height:230px;
+  padding:24px;
+  border-right:1px solid var(--line);
+}
+.decision:last-child{border-right:0}
+.decision span{
+  font-family:Oswald,sans-serif;
+  color:#858589;
+  font-size:13px;
+}
+.decision h4{
+  margin:20px 0 10px;
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:23px;
+  line-height:1;
+}
+.decision p{font-size:11px;color:#929297;margin:0}
+
+.balance{
+  display:grid;
+  grid-template-columns:.7fr 1.3fr;
+  gap:30px;
+  margin-bottom:108px;
+}
+.balance-panel{
+  border:1px solid var(--line);
+  padding:28px;
+}
+.balance-panel h3{
+  margin:0 0 18px;
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:28px;
+}
+.balance-row{
+  display:grid;
+  grid-template-columns:1fr 1.5fr;
+  gap:15px;
+  padding:13px 0;
+  border-bottom:1px solid var(--line);
+}
+.balance-row:last-child{border-bottom:0}
+.balance-row b{font-size:12px}
+.balance-row span{font-size:11px;color:#909095}
+
+.market{
+  padding-bottom:115px;
+}
+.market-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+.market-stat{
+  border:1px solid var(--line);
+  padding:28px;
+  min-height:190px;
+}
+.market-stat strong{
+  display:block;
+  font-family:Oswald,sans-serif;
+  font-size:50px;
+  line-height:.9;
+}
+.market-stat small{
+  display:block;
+  margin-top:14px;
+  color:#8e8e93;
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.revenue-note{
+  margin-top:18px;
+  border:1px solid var(--line);
+  padding:28px;
+  background:#0d0d0e;
+}
+.revenue-note h3{
+  margin:0 0 10px;
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:30px;
+}
+.revenue-note p{margin:0;color:#98989d;font-size:13px}
+.revenue-note .warning{
+  color:#c3c3c6;
+  margin-top:14px;
+  font-size:11px;
+}
+.sources{
+  margin-top:24px;
+  font-size:10px;
+  color:#6f6f73;
+}
+.sources a{text-decoration:underline;color:#919196}
+
+.takeaways{
+  padding-bottom:120px;
+}
+.take-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  border:1px solid var(--line);
+}
+.take{
+  min-height:180px;
+  padding:28px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.take:nth-child(2n){border-right:0}
+.take:nth-last-child(-n+2){border-bottom:0}
+.take .n{
+  color:#74747a;
+  font-family:Oswald,sans-serif;
+  font-size:13px;
+}
+.take h4{
+  margin:14px 0 9px;
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:27px;
+  line-height:.98;
+}
+.take p{margin:0;color:#919197;font-size:12px}
+
+.final{
+  padding:0 0 130px;
+}
+.final-box{
+  border-top:1px solid var(--line);
+  padding-top:45px;
+}
+.final-box .mini{
+  font-size:9px;letter-spacing:.16em;color:#86868b;font-weight:700
+}
+.final-box h2{
+  max-width:1050px;
+  margin:12px 0 24px;
+  font-family:Oswald,sans-serif;
+  text-transform:uppercase;
+  font-size:clamp(54px,7vw,102px);
+  line-height:.89;
+}
+.final-box p{
+  max-width:900px;
+  color:#9b9ba0;
+  font-size:15px;
+}
+.footer{
+  border-top:1px solid var(--line);
+  padding:42px 0 60px;
+  font-size:9px;
+  letter-spacing:.13em;
+  color:#69696e;
+  text-transform:uppercase;
+}
+
+@media(max-width:1000px){
+  .container{width:min(100% - 42px,900px)}
+  .navlinks{display:none}
+  .hero-grid,.section-head,.split,.balance{grid-template-columns:1fr}
+  .hero-visual{min-height:500px;margin-top:25px}
+  .hero-image{height:500px}
+  .section-head{gap:28px}
+  .loop-rail{grid-template-columns:1fr 1fr}
+  .loop-step:nth-child(2){border-right:0}
+  .loop-step:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .loop-step:nth-child(3){border-top:0}
+  .decision-map{grid-template-columns:1fr 1fr}
+  .decision:nth-child(2n){border-right:0}
+  .decision{border-bottom:1px solid var(--line)}
+  .decision:nth-last-child(-n+2){border-bottom:0}
+}
+@media(max-width:680px){
+  .container{width:calc(100% - 28px)}
+  .hero{min-height:auto}
+  .hero-grid{padding:32px 0 36px}
+  .hero h1{font-size:58px}
+  .hero h1 .sub{font-size:.5em}
+  .hero-desc{font-size:14px;margin-top:30px}
+  .hero-visual{min-height:390px}
+  .hero-image{height:390px}
+  .section-head{padding:78px 0 36px}
+  .concept-grid,.loop-rail,.market-grid,.take-grid,.decision-map{grid-template-columns:1fr}
+  .loop-step,.decision{border-right:0;border-bottom:1px solid var(--line)!important}
+  .loop-step:last-child,.decision:last-child{border-bottom:0!important}
+  .split.visual-right .media,.split.visual-right .copy{order:0}
+  .feature-image img{height:420px}
+  .media{min-height:360px}
+  .copy h3{font-size:36px}
+  .take:nth-child(2n){border-right:0}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="container nav">
+    <div class="brand">VETHAVARSHAN<small>GAME DESIGNER</small></div>
+    <div class="navlinks">
+      <a href="#question">QUESTION</a>
+      <a href="#concept">CONCEPT</a>
+      <a href="#loop">LOOP</a>
+      <a href="#systems">SYSTEMS</a>
+      <a href="#interaction">INTERACTION</a>
+      <a href="#market">MARKET</a>
+      <a href="#takeaways">TAKEAWAYS</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <div class="eyebrow">BREAKDOWN 07 · BOARD GAME</div>
+      <h1>
+        CARCASSONNE
+        <span class="sub">— SPATIAL STRATEGY,<br>OWNERSHIP &amp;<br>EMERGENT INTERACTION</span>
+      </h1>
+      <p class="hero-desc">
+        How one simple action — placing a landscape tile — becomes a system of spatial planning,
+        resource commitment, indirect conflict and long-term scoring.
+      </p>
+      <div class="hero-meta">
+        <span class="tag">TILE PLACEMENT</span>
+        <span class="tag">AREA INFLUENCE</span>
+        <span class="tag">MEEPLES</span>
+        <span class="tag">SCORING</span>
+        <span class="tag">PLAYER INTERACTION</span>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-image">
+        <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Carcassonne%20game.jpg?width=1800" alt="Players playing Carcassonne around a growing board">
+        <div class="caption">
+          <span>SHARED BOARD STATE</span>
+          <span>IMAGE · WIKIMEDIA COMMONS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="question">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">01</span> / DESIGN QUESTION</div>
+        <h2>THE<br>PROBLEM<br>TO STUDY.</h2>
+      </div>
+      <div class="section-intro">
+        Carcassonne is a tile-placement game where players shape a shared medieval landscape and
+        claim cities, roads, monasteries and farms. BoardGameGeek lists the game at 2–5 players,
+        30–45 minutes, with a community complexity weight of 1.88/5. The interesting design
+        problem is how that relatively light ruleset produces strategic depth.
+      </div>
+    </div>
+
+    <div class="big-quote">
+      HOW DOES ONE SIMPLE ACTION CREATE
+      <span>MULTIPLE COMPETING DECISIONS?</span>
+    </div>
+
+    <div class="concept-band" id="concept">
+      <div class="concept-grid">
+        <div class="concept-card">
+          <h3>Build the map.</h3>
+          <p>Each placed tile permanently changes the shared spatial state.</p>
+        </div>
+        <div class="concept-card">
+          <h3>Claim the value.</h3>
+          <p>A meeple converts a promising feature into a temporary ownership commitment.</p>
+        </div>
+        <div class="concept-card">
+          <h3>Read everyone.</h3>
+          <p>Your best placement is also evaluated through what it gives, denies or exposes to opponents.</p>
+        </div>
+        <div class="concept-card">
+          <h3>Plan the future.</h3>
+          <p>The important consequence of a tile is often not its immediate points, but what it makes possible next.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="loop">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">02</span> / CORE LOOP</div>
+        <h2>FAST<br>ACTION.<br>DEEP STATE.</h2>
+      </div>
+      <div class="section-intro">
+        The turn structure stays stable. The board does not. Every placement creates a new puzzle
+        for the next player, so the repeated loop continuously changes its decision context.
+      </div>
+    </div>
+
+    <div class="loop">
+      <div class="loop-rail">
+        <div class="loop-step"><small>01 / INPUT</small><h3>DRAW</h3><p>Reveal one tile and accept the constraint it creates.</p></div>
+        <div class="loop-step"><small>02 / POSITION</small><h3>PLACE</h3><p>Connect roads, city edges and fields legally.</p></div>
+        <div class="loop-step"><small>03 / COMMIT</small><h3>CLAIM?</h3><p>Choose whether the opportunity is worth a meeple.</p></div>
+        <div class="loop-step"><small>04 / RESOLVE</small><h3>SCORE</h3><p>Complete features, score points and recover workers.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="systems">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">03</span> / TILE PLACEMENT</div>
+        <h2>THE BOARD<br>IS THE<br>PUZZLE.</h2>
+      </div>
+      <div class="section-intro">
+        Tile placement is more than matching edges. It is a spatial decision with immediate,
+        competitive and future consequences.
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-image">
+        <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/CarcassonneTiles.png?width=1600" alt="Carcassonne tile distribution showing the tile language">
+        <div class="image-note">
+          <span>TILE LANGUAGE / ROADS · CITIES · FIELDS · MONASTERIES</span>
+          <span>DIAGRAM · CC BY-SA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="split visual-left">
+      <div class="media">
+        <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Carcassonne%202r2c%20R0.svg?width=900" alt="Schematic Carcassonne tile showing terrain boundaries">
+      </div>
+      <div class="copy">
+        <div class="mini">READ THE TILE</div>
+        <h3>LEGALITY → VALUE → DENIAL</h3>
+        <p><strong>Legality:</strong> where can this tile fit?</p>
+        <p><strong>Value:</strong> which placement advances my plan?</p>
+        <p><strong>Denial:</strong> which placement changes another player's future options?</p>
+        <div class="inline-take">
+          <b>DESIGN TAKEAWAY</b>
+          <p>A tile is a constraint package. Its value depends on the board state surrounding it.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="mini">SYSTEM PRINCIPLE</div>
+      <h3>Do not measure depth by action count.</h3>
+      <p>
+        Carcassonne keeps the action vocabulary small and moves complexity into consequence:
+        placement changes ownership, scoring opportunities, future paths and other players' options.
+      </p>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">04</span> / MEEPLE SYSTEM</div>
+        <h2>OWNERSHIP<br>IS A<br>RESOURCE.</h2>
+      </div>
+      <div class="section-intro">
+        Meeples make otherwise passive map features strategically meaningful. Committing one means
+        giving up the chance to use that worker somewhere else until the feature resolves.
+      </div>
+    </div>
+
+    <div class="split visual-right">
+      <div class="media">
+        <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Carcassonne%20Miples.jpg?width=1600" alt="Carcassonne coloured meeples">
+      </div>
+      <div class="copy">
+        <div class="mini">COMMITMENT LOOP</div>
+        <h3>AVAILABLE → COMMIT → COMPLETE → RETURN</h3>
+        <p>
+          The meaningful question is not simply “can I claim this?” but:
+          <strong>“Is this opportunity worth locking a limited resource into?”</strong>
+        </p>
+        <p>
+          This converts a physical worker into a lightweight economy of opportunity cost.
+        </p>
+        <div class="inline-take">
+          <b>DESIGN TAKEAWAY</b>
+          <p>Scarcity gives ownership weight. A commitment only matters when alternatives exist.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">05</span> / SCORING</div>
+        <h2>SCORE<br>SHAPES<br>BEHAVIOUR.</h2>
+      </div>
+      <div class="section-intro">
+        Cities, roads, monasteries and fields create different spatial goals. The scoring system
+        therefore acts as a behavioural guide rather than just an end-of-turn calculator.
+      </div>
+    </div>
+
+    <div class="split visual-left">
+      <div class="media">
+        <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Carcassone%20jogo-game.jpg?width=1500" alt="Carcassonne board with multiple landscape features">
+      </div>
+      <div class="copy">
+        <div class="mini">MULTIPLE FORMS OF VALUE</div>
+        <h3>THE SAME BOARD CAN BE READ IN DIFFERENT WAYS.</h3>
+        <p><strong>City:</strong> expansion and enclosure.</p>
+        <p><strong>Road:</strong> extension and connection.</p>
+        <p><strong>Monastery:</strong> surrounding-space completion.</p>
+        <p><strong>Field:</strong> long-horizon regional influence.</p>
+        <div class="inline-take">
+          <b>DESIGN TAKEAWAY</b>
+          <p>If several scoring structures coexist, players can pursue different definitions of “good space.”</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">06</span> / RISK &amp; COMMITMENT</div>
+        <h2>BIGGER<br>IS NOT<br>ALWAYS BETTER.</h2>
+      </div>
+      <div class="section-intro">
+        Larger features may offer more potential value, but they can also remain unresolved longer,
+        keep meeples committed and become exposed to more board-state changes.
+      </div>
+    </div>
+
+    <div class="decision-map">
+      <div class="decision"><span>01</span><h4>SMALL FEATURE</h4><p>Fast completion and quicker resource recovery.</p></div>
+      <div class="decision"><span>02</span><h4>LARGE FEATURE</h4><p>Higher potential value with greater completion dependency.</p></div>
+      <div class="decision"><span>03</span><h4>RESOURCE LOCK</h4><p>A committed meeple reduces your available options.</p></div>
+      <div class="decision"><span>04</span><h4>OPPONENT PRESSURE</h4><p>The shared map can change before your plan resolves.</p></div>
+      <div class="decision"><span>05</span><h4>LONG HORIZON</h4><p>Fields and unfinished structures move value toward the end game.</p></div>
+    </div>
+
+    <div class="callout">
+      <div class="mini">DESIGN TAKEAWAY</div>
+      <h3>Risk can come from commitment and time — not only from probability.</h3>
+      <p>
+        A design can create tension by asking players to lock resources into uncertain future outcomes.
+        No dice roll is required.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="interaction">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">07</span> / PLAYER INTERACTION</div>
+        <h2>COMPETE<br>WITHOUT<br>AN ATTACK BUTTON.</h2>
+      </div>
+      <div class="section-intro">
+        Carcassonne creates multiplayer pressure through the shared map. Players can block,
+        connect, contest and exploit opportunities through placement itself.
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-image">
+        <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Carcassonne%20in%20Kaisla.jpg?width=1800" alt="Five-player Carcassonne board in the middle of a game">
+        <div class="image-note">
+          <span>SHARED SPACE / FIVE-PLAYER MID-GAME STATE</span>
+          <span>PHOTO · JIP / CC BY-SA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="split visual-right">
+      <div class="media">
+        <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/CarcassonneFigureTaxonomy.jpg?width=1400" alt="Classification of figures used in Carcassonne">
+      </div>
+      <div class="copy">
+        <div class="mini">INTERACTION LANGUAGE</div>
+        <h3>BLOCK · JOIN · CONTEST · OPPORTUNISM</h3>
+        <p><strong>Block:</strong> reduce useful completion possibilities.</p>
+        <p><strong>Join:</strong> connect into a shared feature when the rules allow it.</p>
+        <p><strong>Contest:</strong> compete for control where the scoring rules create it.</p>
+        <p><strong>Opportunism:</strong> gain value from a landscape another player helped construct.</p>
+        <div class="inline-take">
+          <b>DESIGN TAKEAWAY</b>
+          <p>The system itself can be the medium of conflict. Direct combat is not required for strong player interaction.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="big-quote">
+      THE MAP IS NOT A BACKDROP.
+      <span>IT IS WHERE THE PLAYERS INTERACT.</span>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">08</span> / INFORMATION DESIGN</div>
+        <h2>THE MAP<br>IS THE<br>INTERFACE.</h2>
+      </div>
+      <div class="section-intro">
+        Important state is represented spatially: open edges, completed features, claimed locations,
+        feature boundaries and the overall shape of the growing board.
+      </div>
+    </div>
+
+    <div class="split visual-left">
+      <div class="media">
+        <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Carcassonne%20game.jpg?width=1800" alt="Carcassonne board state showing roads cities fields and meeples">
+      </div>
+      <div class="copy">
+        <div class="mini">VISIBLE GAME STATE</div>
+        <h3>POSITION COMMUNICATES POSSIBILITY.</h3>
+        <p>
+          Players do not need a separate HUD to understand much of the game. The geometry of the
+          board tells them what has been built, what remains open and which spaces can support future action.
+        </p>
+        <div class="inline-take">
+          <b>LEVEL DESIGN CONNECTION</b>
+          <p>Readable spatial structure can communicate state and future options before explicit interface elements are added.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">09</span> / DECISION STACK</div>
+        <h2>ONE TILE.<br>FIVE<br>QUESTIONS.</h2>
+      </div>
+      <div class="section-intro">
+        This is where a small ruleset becomes a useful design study. The decision stack increases
+        without adding new buttons.
+      </div>
+    </div>
+
+    <div class="decision-map">
+      <div class="decision"><span>01</span><h4>CAN IT FIT?</h4><p>Rule legality.</p></div>
+      <div class="decision"><span>02</span><h4>IS IT VALUABLE?</h4><p>Immediate spatial and scoring value.</p></div>
+      <div class="decision"><span>03</span><h4>SHOULD I CLAIM?</h4><p>Resource commitment.</p></div>
+      <div class="decision"><span>04</span><h4>WHO BENEFITS?</h4><p>Multiplayer impact.</p></div>
+      <div class="decision"><span>05</span><h4>WHAT HAPPENS NEXT?</h4><p>Future-state planning.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">10</span> / RANDOMNESS &amp; AGENCY</div>
+        <h2>THE TILE<br>IS RANDOM.<br>THE DECISION ISN'T.</h2>
+      </div>
+      <div class="section-intro">
+        The draw creates uncertainty. The player then receives agency over interpretation:
+        where the tile goes, whether to claim it and how that choice changes the map.
+      </div>
+    </div>
+
+    <div class="balance">
+      <div class="balance-panel">
+        <h3>Random input</h3>
+        <div class="balance-row"><b>Draw</b><span>You do not choose the tile that appears.</span></div>
+        <div class="balance-row"><b>Constraint</b><span>The board limits where that tile can produce useful value.</span></div>
+        <div class="balance-row"><b>Uncertainty</b><span>Future options depend on what is drawn later.</span></div>
+      </div>
+      <div class="balance-panel">
+        <h3>Player agency</h3>
+        <div class="balance-row"><b>Interpret</b><span>Search the current map for useful placements.</span></div>
+        <div class="balance-row"><b>Commit</b><span>Choose whether a meeple is worth spending.</span></div>
+        <div class="balance-row"><b>Transform</b><span>Your placement permanently changes the next decision state.</span></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="mini">DESIGN TAKEAWAY</div>
+      <h3>Randomness creates the problem. Agency determines how the problem is solved.</h3>
+      <p>
+        The useful distinction is not “random or strategic.” It is whether uncertainty is followed
+        by enough meaningful decisions for the player to feel responsible for the outcome.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="market">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">11</span> / COMMERCIAL CONTEXT</div>
+        <h2>A SMALL<br>RULESET.<br>A LONG LIFE.</h2>
+      </div>
+      <div class="section-intro">
+        Commercial data is useful here as context for longevity and reach. It should not be presented
+        as proof that any one mechanic directly caused sales.
+      </div>
+    </div>
+
+    <div class="market">
+      <div class="market-grid">
+        <div class="market-stat"><strong>12M+</strong><small>Base-game copies sold worldwide — third-party 2026 report</small></div>
+        <div class="market-stat"><strong>6M+</strong><small>Expansion units — third-party 2026 report</small></div>
+        <div class="market-stat"><strong>$400M+</strong><small>Estimated lifetime franchise revenue — third-party estimate</small></div>
+      </div>
+
+      <div class="revenue-note">
+        <h3>How I would present revenue in a portfolio.</h3>
+        <p>
+          A verified publisher financial statement for Carcassonne's lifetime revenue was not found.
+          A 2026 third-party statistics report estimates the wider franchise at <strong>over $400 million
+          lifetime revenue</strong>, while reporting 12M+ base-game copies and 6M+ expansion units.
+        </p>
+        <p class="warning">
+          <strong>Important:</strong> the $400M+ figure is an estimate, not an audited Asmodee/Hans im Glück
+          revenue disclosure. I would label it exactly that way rather than presenting it as official revenue.
+          I would also avoid multiplying today's MSRP by copies sold because historical prices, editions,
+          expansions and retailer margins make that calculation misleading.
+        </p>
+        <div class="sources">
+          Sources:
+          <a href="https://boardgamegeek.com/boardgame/822/carcassonne" target="_blank">BoardGameGeek · Carcassonne</a>
+          ·
+          <a href="https://coopboardgames.com/statistics/carcassonne-board-game/" target="_blank">Coop Board Games · 2026 statistics report</a>
+          ·
+          <a href="https://commons.wikimedia.org/wiki/File:Carcassonne_game.jpg" target="_blank">Wikimedia Commons image source</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="takeaways">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="section-kicker"><span class="number">12</span> / WHAT I LEARNED</div>
+        <h2>DESIGN<br>TAKEAWAYS.</h2>
+      </div>
+      <div class="section-intro">
+        The goal of this breakdown is to extract reusable design principles, not to memorize
+        Carcassonne's rules.
+      </div>
+    </div>
+
+    <div class="takeaways">
+      <div class="take-grid">
+        <div class="take"><div class="n">01</div><h4>Simple actions can create deep decisions.</h4><p>Increase consequences and context before increasing the number of player verbs.</p></div>
+        <div class="take"><div class="n">02</div><h4>Scarcity makes ownership meaningful.</h4><p>A claim matters because the same worker cannot be committed everywhere at once.</p></div>
+        <div class="take"><div class="n">03</div><h4>Scoring rules are behavioural rules.</h4><p>What the game rewards changes what players consider valuable space.</p></div>
+        <div class="take"><div class="n">04</div><h4>Shared space naturally creates interaction.</h4><p>Competition can emerge through placement without explicit attack mechanics.</p></div>
+        <div class="take"><div class="n">05</div><h4>Random input can preserve agency.</h4><p>Uncertainty is useful when players retain meaningful choices after the random event.</p></div>
+        <div class="take"><div class="n">06</div><h4>Commitment can generate risk.</h4><p>Resource lock and delayed completion are enough to create tension.</p></div>
+        <div class="take"><div class="n">07</div><h4>Spatial readability can replace interface.</h4><p>The board itself communicates ownership, state and future possibility.</p></div>
+        <div class="take"><div class="n">08</div><h4>Depth can emerge from small systems interacting.</h4><p>Tile rules + scoring + resources + opponents create complexity without a huge ruleset.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section final">
+  <div class="container">
+    <div class="final-box">
+      <div class="mini">FINAL DESIGN STATEMENT</div>
+      <h2>DESIGN CONSEQUENCES,<br>NOT COMPLEXITY.</h2>
+      <p>
+        Carcassonne turns a single repeated action into a chain of consequences:
+        <strong>SPACE → OWNERSHIP → RESOURCE COMMITMENT → SCORING → OPPONENT IMPACT → FUTURE POSSIBILITY.</strong>
+      </p>
+      <p>
+        <strong>My main takeaway:</strong> a simple mechanic becomes deep when every decision changes the context of the next decision.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    VETHAVARSHAN / GAME DESIGNER · CARCASSONNE — SPATIAL STRATEGY, OWNERSHIP &amp; EMERGENT INTERACTION · PORTFOLIO STUDY
+  </div>
+</footer>
+
+</body>
+</html>
